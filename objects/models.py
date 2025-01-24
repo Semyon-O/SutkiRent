@@ -34,6 +34,23 @@ class Object(models.Model):
     helpful_info = models.TextField(null=True)
     parking_info = models.TextField(null=True)
 
+    services = models.ManyToManyField('Service', through='ObjectServices')
+    inventories = models.ManyToManyField('Inventory', through='ObjectInventory')
+
+class Service(models.Model):
+    name = models.CharField(max_length=255)
 
 
+class Inventory(models.Model):
+    name = models.CharField(max_length=255)
 
+
+class ObjectServices(models.Model):
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    object = models.ForeignKey(Object, on_delete=models.CASCADE)
+
+
+class ObjectInventory(models.Model):
+    object = models.ForeignKey(Object, on_delete=models.CASCADE)
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+    amount = models.IntegerField()
