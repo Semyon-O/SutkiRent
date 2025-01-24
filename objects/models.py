@@ -18,7 +18,7 @@ class Banner(models.Model):
 
 
 class Object(models.Model):
-    url_path = models.URLField()
+    url_path = models.CharField(unique=True, max_length=255)
     is_showing = models.BooleanField(default=True, db_index=True)
     short_name = models.CharField(max_length=255)
     cost = models.IntegerField(db_index=True)
