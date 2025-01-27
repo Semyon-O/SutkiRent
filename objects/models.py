@@ -58,10 +58,14 @@ class Object(models.Model):
     short_name = models.CharField(max_length=255, verbose_name='Короткое имя')
     cost = models.IntegerField(db_index=True, verbose_name='Стоимость')
     type = models.ForeignKey(to=TypeObject, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Тип')
+    amount_rooms = models.IntegerField(verbose_name="Количество комнат", null=True, blank=True, db_index=True)
+    floor = models.IntegerField(default=1, verbose_name="Этаж", null=True, db_index=True)
     category = models.ForeignKey(to=Category, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Категория')
+    region = models.ForeignKey(to=Region, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name="Регион")
     city = models.CharField(max_length=255, null=True, db_index=True, blank=True, verbose_name='Город')
     banner = models.ForeignKey(to=Banner, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Баннер')
     space = models.FloatField(null=True, db_index=True, blank=True, verbose_name='Площадь')
+    address = models.CharField(max_length=255, null=True, blank=True, verbose_name="Адрес")
     description = models.TextField(null=True, blank=True, verbose_name='Описание')
     conditions_accommodation = models.TextField(null=True, blank=True, verbose_name='Условия заселения')
     contacts = models.TextField(null=True, blank=True, verbose_name='Контактные данные')
@@ -71,6 +75,7 @@ class Object(models.Model):
 
     services = models.ManyToManyField('Service', through='ObjectServices')
     inventories = models.ManyToManyField('Inventory', through='ObjectInventory')
+    near_metros = models.ManyToManyField("Metro", through="MetroNearObject", db_index=True)
 
     def __str__(self):
         return f"{self.short_name} ({self.pk})"
@@ -107,12 +112,43 @@ class Inventory(models.Model):
         db_table = 'inventories'
 
 
+class Metro(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
 class ObjectServices(models.Model):
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    object = models.ForeignKey(Object, on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, verbose_name="Услуга")
+    object = models.ForeignKey(Object, on_delete=models.CASCADE, verbose_name="Объект")
+
+    def __str__(self):
+        return f"{self.service} - {self.object}"
+
+    class Meta:
+        verbose_name_plural = "Услуги для объекта"
+        verbose_name = "Услуга для объекта"
+        ordering = ['service', 'object']
 
 
 class ObjectInventory(models.Model):
-    object = models.ForeignKey(Object, on_delete=models.CASCADE)
-    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
-    amount = models.IntegerField()
+    object = models.ForeignKey(Object, on_delete=models.CASCADE, verbose_name="Объект")
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, verbose_name="Наименование инвентаря")
+    amount = models.IntegerField(verbose_name="Количество")
+
+    def __str__(self):
+        return f"{self.inventory} - {self.object}"
+
+    class Meta:
+        verbose_name_plural = "Инвентарь для объекта"
+        verbose_name = "Инвентарь для объекта"
+        ordering = ['object', 'inventory']
+
+
+class MetroNearObject(models.Model):
+    metro = models.ForeignKey(to="Metro", on_delete=models.CASCADE)
+    object = models.ForeignKey(to="Object", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.metro} - {self.object}"
