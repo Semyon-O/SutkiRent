@@ -75,7 +75,7 @@ class Object(models.Model):
 
     services = models.ManyToManyField('Service', through='ObjectServices')
     inventories = models.ManyToManyField('Inventory', through='ObjectInventory')
-    near_metros = models.ManyToManyField("Metro", through="MetroNearObject", db_index=True)
+    near_metros = models.ManyToManyField('Metro', through='MetroNearObject', db_index=True)
 
     def __str__(self):
         return f"{self.short_name} ({self.pk})"
