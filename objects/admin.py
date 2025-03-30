@@ -11,6 +11,7 @@ class InventoryObjectInline(admin.TabularInline):
     model = models.ObjectInventory
     extra = 3
 
+
 @admin.register(models.Object)
 class ObjectAdmin(admin.ModelAdmin):
     inlines = [ServicesObjectInlines,InventoryObjectInline]
@@ -24,3 +25,4 @@ admin.site.register(models.ObjectServices)
 admin.site.register(models.Service)
 admin.site.register(models.Inventory)
 admin.site.register(models.ObjectInventory)
+admin.site.register(models.Metro)
