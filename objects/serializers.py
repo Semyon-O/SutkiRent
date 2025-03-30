@@ -21,4 +21,6 @@ class ShortObjectSerializer(serializers.ModelSerializer):
             'cost',
             'banner',
             'city',
+            'near_metro',
+
         ]

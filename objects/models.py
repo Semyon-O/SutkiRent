@@ -33,6 +33,7 @@ class Object(models.Model):
     finding_description = models.TextField(null=True)
     helpful_info = models.TextField(null=True)
     parking_info = models.TextField(null=True)
+    near_metro = models.CharField(null=True, max_length=255)
 
     services = models.ManyToManyField('Service', through='ObjectServices')
     inventories = models.ManyToManyField('Inventory', through='ObjectInventory')
