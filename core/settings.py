@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'contents',
     'objects',
 ]
 
@@ -113,6 +115,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Каталог для хранения медиа-файлов
+MEDIA_URL = '/media/'  # Базовый URL для доступа к медиа-файлам
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
