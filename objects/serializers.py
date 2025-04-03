@@ -3,17 +3,16 @@ from . import models
 
 
 class InventorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.Inventory
-        fields = ['name']
+        fields = '__all__'
 
 
 class ServiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Service
-        fields = ['name']
+        fields = '__all__'
 
 
 class ObjectInventorySerializer(serializers.ModelSerializer):
@@ -22,7 +21,7 @@ class ObjectInventorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ObjectInventory
-        fields = ['inventory', 'amount']
+        fields = '__all__'
 
 
 class ObjectSerializer(serializers.ModelSerializer):
@@ -59,6 +58,7 @@ class ObjectSerializer(serializers.ModelSerializer):
 
 class ShortObjectSerializer(serializers.ModelSerializer):
 
+
     class Meta:
         model = models.Object
         fields = [
@@ -71,3 +71,38 @@ class ShortObjectSerializer(serializers.ModelSerializer):
             'city',
             'near_metro',
         ]
+
+class TypeObjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TypeObject
+        fields = '__all__'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Category
+        fields = '__all__'
+
+
+class RegionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Region
+        fields = '__all__'
+
+
+class BannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Banner
+        fields = '__all__'
+
+
+class MetroSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Metro
+        fields = '__all__'
+
+
+class ObjectServicesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ObjectServices
+        fields = '__all__'
