@@ -12,6 +12,8 @@ class ObjectFilter(django_filters.FilterSet):
     city = django_filters.CharFilter(lookup_expr='icontains')
     space = django_filters.RangeFilter(field_name='space')
 
+    booking_date = django_filters.DateFromToRangeFilter(field_name='booking_date', lookup_expr='icontains')
+
     class Meta:
         model = Object
         fields = ['cost', 'type', 'amount_rooms', 'floor', 'category', 'region', 'city', 'space']

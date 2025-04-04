@@ -38,8 +38,15 @@ class CategoryListAPIView(ListAPIView):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
 
+class CategoryRetrieveAPIView(RetrieveAPIView):
+    queryset = models.Category.objects.all()
+    serializer_class = serializers.CategorySerializer
 
 class RegionListAPIView(ListAPIView):
+    queryset = models.Region.objects.all()
+    serializer_class = serializers.RegionSerializer
+
+class RegionRetrieveAPIView(RetrieveAPIView):
     queryset = models.Region.objects.all()
     serializer_class = serializers.RegionSerializer
 
@@ -48,27 +55,46 @@ class BannerListAPIView(ListAPIView):
     queryset = models.Banner.objects.all()
     serializer_class = serializers.BannerSerializer
 
+class BannerRetrieveAPIView(RetrieveAPIView):
+    queryset = models.Banner.objects.all()
+    serializer_class = serializers.BannerSerializer
 
 class ServiceListAPIView(ListAPIView):
     queryset = models.Service.objects.all()
     serializer_class = serializers.ServiceSerializer
 
+class ServiceRetrieveAPIView(RetrieveAPIView):
+    queryset = models.Service.objects.all()
+    serializer_class = serializers.ServiceSerializer
 
 class InventoryListAPIView(ListAPIView):
     queryset = models.Inventory.objects.all()
     serializer_class = serializers.InventorySerializer
 
+class InventoryRetrieveAPIView(RetrieveAPIView):
+    queryset = models.Inventory.objects.all()
+    serializer_class = serializers.InventorySerializer
 
 class MetroListAPIView(ListAPIView):
     queryset = models.Metro.objects.all()
     serializer_class = serializers.MetroSerializer
 
+class MetroRetrieveAPIView(RetrieveAPIView):
+    queryset = models.Metro.objects.all()
+    serializer_class = serializers.MetroSerializer
 
 class ObjectServicesListAPIView(ListAPIView):
     queryset = models.ObjectServices.objects.all()
     serializer_class = serializers.ObjectServicesSerializer
 
+class ObjectServiceRetrieveAPIView(RetrieveAPIView):
+    queryset = models.ObjectServices.objects.all()
+    serializer_class = serializers.ObjectServicesSerializer
 
 class ObjectInventoryListAPIView(ListAPIView):
+    queryset = models.ObjectInventory.objects.all()
+    serializer_class = serializers.ObjectInventorySerializer
+
+class ObjectInventoryRetrieveAPIView(RetrieveAPIView):
     queryset = models.ObjectInventory.objects.all()
     serializer_class = serializers.ObjectInventorySerializer

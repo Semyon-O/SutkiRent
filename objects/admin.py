@@ -2,6 +2,9 @@ from django.contrib import admin
 
 from . import models
 
+class MediaFileAdmin(admin.TabularInline):
+    model = models.ObjectsMediaFile
+    extra = 1
 
 class ServicesObjectInlines(admin.TabularInline):
     model = models.ObjectServices
@@ -14,7 +17,7 @@ class InventoryObjectInline(admin.TabularInline):
 
 @admin.register(models.Object)
 class ObjectAdmin(admin.ModelAdmin):
-    inlines = [ServicesObjectInlines,InventoryObjectInline]
+    inlines = [ServicesObjectInlines,InventoryObjectInline, MediaFileAdmin]
 
 
 admin.site.register(models.Region)

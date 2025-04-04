@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils.translation import gettext_lazy as _
 
 class TypeObject(models.Model):
     name = models.CharField(unique=True, max_length=255, verbose_name='Тип объекта')
@@ -86,6 +86,16 @@ class Object(models.Model):
         verbose_name = 'Объект'
         db_table = 'objects'
 
+
+# Модель для хранения медиафайлов
+class ObjectsMediaFile(models.Model):
+    file = models.FileField(upload_to='content/', verbose_name=_('Файл'))
+    article = models.ForeignKey(
+        Object, on_delete=models.CASCADE, related_name='media'
+    )
+
+    def __str__(self):
+        return f"{self.file.name}"
 
 class Service(models.Model):
     name = models.CharField(max_length=255, verbose_name='Услуги')

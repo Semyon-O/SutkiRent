@@ -14,19 +14,13 @@ SECRET_KEY = 'django-insecure-tsgk8-fz*m%l^(%z)_&)63e54=gnj24@1wio^f24#k#stvbzl+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
-CORS_ALLOWED_ORIGINS = [
-    'http://127.0.0.1:8000',
-]
-CORS_ALLOW_METHODS = (
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-)
+CORS_ALLOW_ALL_ORIGINS = True # If this is used then `CORS_ALLOWED_ORIGINS` will not have any effect
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_ALLOW_ALL = True
+
 CORS_ALLOW_HEADERS = (
     "accept",
     "authorization",
@@ -34,6 +28,16 @@ CORS_ALLOW_HEADERS = (
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
+    "origin",
+)
+
+CORS_ALLOW_METHODS = (
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
 )
 
 # Application definition
