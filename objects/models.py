@@ -89,8 +89,8 @@ class Object(models.Model):
 
 # Модель для хранения медиафайлов
 class ObjectsMediaFile(models.Model):
-    file = models.FileField(upload_to='content/', verbose_name=_('Файл'))
-    article = models.ForeignKey(
+    file = models.FileField(upload_to='objects/', verbose_name=_('Файл'))
+    object = models.ForeignKey(
         Object, on_delete=models.CASCADE, related_name='media'
     )
 

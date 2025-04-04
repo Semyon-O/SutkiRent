@@ -8,6 +8,11 @@ class InventorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ObjectMediaFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ObjectsMediaFile
+        fields = '__all__'
+
 class ServiceSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -28,6 +33,7 @@ class ObjectSerializer(serializers.ModelSerializer):
 
     object_inventories = ObjectInventorySerializer(source="objectinventory_set",many=True)
     services = ServiceSerializer(many=True)
+    media = ObjectMediaFileSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Object
@@ -53,6 +59,7 @@ class ObjectSerializer(serializers.ModelSerializer):
             'object_inventories',
             'services',
             'near_metro',
+            'media',
         ]
 
 
