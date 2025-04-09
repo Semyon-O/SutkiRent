@@ -53,13 +53,13 @@ class Banner(models.Model):
 
 
 class Object(models.Model):
-
-    url_path = models.CharField(unique=True, max_length=255, verbose_name='Маршрут')
+    # id
     is_showing = models.BooleanField(default=True, db_index=True, verbose_name='Опубликовать?')
     short_name = models.CharField(max_length=255, verbose_name='Короткое имя')
     cost = models.IntegerField(db_index=True, verbose_name='Стоимость')
     type = models.ForeignKey(to=TypeObject, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Тип')
     amount_rooms = models.IntegerField(verbose_name="Количество комнат", null=True, blank=True, db_index=True)
+    sleeps = models.CharField(max_length=255, verbose_name="Количество спальных мест", null=True)
     floor = models.IntegerField(default=1, verbose_name="Этаж", null=True, db_index=True)
     category = models.ForeignKey(to=Category, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Категория')
     region = models.ForeignKey(to=Region, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name="Регион")
@@ -73,7 +73,7 @@ class Object(models.Model):
     finding_description = models.TextField(null=True, blank=True, verbose_name='Как найти')
     helpful_info = models.TextField(null=True, blank=True, verbose_name='Полезная информация')
     parking_info = models.TextField(null=True, blank=True, verbose_name='Информация по парковке')
-    near_metro = models.ForeignKey(to='Metro', db_index=True, on_delete=models.SET_NULL, null=True)
+    near_metro = models.ManyToManyField(to='Metro', db_index=True, null=True, through='NearMetroObject')
 
     services = models.ManyToManyField('Service', through='ObjectServices')
     inventories = models.ManyToManyField('Inventory', through='ObjectInventory')
@@ -130,6 +130,10 @@ class Metro(models.Model):
         return self.name
 
 
+class NearMetroObject(models.Model):
+    metro = models.ForeignKey(to=Metro, on_delete=models.SET_NULL, null=True)
+    object = models.ForeignKey(to=Object, on_delete=models.SET_NULL, null=True)
+
 class ObjectServices(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, verbose_name="Услуга")
     object = models.ForeignKey(Object, on_delete=models.CASCADE, verbose_name="Объект")
@@ -141,7 +145,6 @@ class ObjectServices(models.Model):
         verbose_name_plural = "Услуги для объекта"
         verbose_name = "Услуга для объекта"
         ordering = ['service', 'object']
-
 
 class ObjectInventory(models.Model):
     object = models.ForeignKey(Object, on_delete=models.CASCADE, verbose_name="Объект")

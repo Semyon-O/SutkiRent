@@ -10,6 +10,10 @@ class ServicesObjectInlines(admin.TabularInline):
     model = models.ObjectServices
     extra = 3
 
+class MetroObjectInlines(admin.TabularInline):
+    model = models.NearMetroObject
+    extra = 3
+
 class InventoryObjectInline(admin.TabularInline):
     model = models.ObjectInventory
     extra = 3
@@ -17,7 +21,7 @@ class InventoryObjectInline(admin.TabularInline):
 
 @admin.register(models.Object)
 class ObjectAdmin(admin.ModelAdmin):
-    inlines = [ServicesObjectInlines,InventoryObjectInline, MediaFileAdmin]
+    inlines = [ServicesObjectInlines,InventoryObjectInline, MetroObjectInlines, MediaFileAdmin]
 
 
 admin.site.register(models.Region)
