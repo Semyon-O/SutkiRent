@@ -60,6 +60,7 @@ class Object(models.Model):
     type = models.ForeignKey(to=TypeObject, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Тип')
     amount_rooms = models.IntegerField(verbose_name="Количество комнат", null=True, blank=True, db_index=True)
     sleeps = models.CharField(max_length=255, verbose_name="Количество спальных мест", null=True)
+    capacity = models.IntegerField(verbose_name="Количество людей", null=True)
     floor = models.IntegerField(default=1, verbose_name="Этаж", null=True, db_index=True)
     category = models.ForeignKey(to=Category, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Категория')
     region = models.ForeignKey(to=Region, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name="Регион")
