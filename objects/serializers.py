@@ -85,7 +85,7 @@ class UnifiedMediaSerializer(serializers.Serializer):
                 'source_type': 'file',
                 'url': obj.file.url,  # URL файла на сервере
             }
-        return None  # Если передан неподдерживаемый тип
+        return None
 
 
 
@@ -145,6 +145,21 @@ class ObjectSerializer(serializers.ModelSerializer):
 class ShortObjectSerializer(serializers.ModelSerializer):
     banner = BannerSerializer(many=False)
     near_metro = MetroSerializer(many=True)
+    media = serializers.SerializerMethodField()
+
+    def get_media(self, obj: models.Object):
+        # Пытаемся получить первый файл
+        file_media = obj.file_media.first()
+        if file_media:
+            return UnifiedMediaSerializer.get_media_data(file_media)
+
+        # Если файла нет, возвращаем первую ссылку (если есть)
+        url_media = obj.url_media.first()
+        if url_media:
+            return UnifiedMediaSerializer.get_media_data(url_media)
+
+        # Если медиа нет вообще
+        return None
 
     class Meta:
         model = models.Object
@@ -164,5 +179,6 @@ class ShortObjectSerializer(serializers.ModelSerializer):
             'space',
             'address',
             'near_metro',
+            'media'
         ]
 
