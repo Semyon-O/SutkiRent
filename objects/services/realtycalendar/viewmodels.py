@@ -1,3 +1,4 @@
+import datetime
 import logging
 import pprint
 
@@ -56,8 +57,8 @@ class RealtyCalendar:
             response = requests.post(
                 self.url + path_url,
                 json={
-                    "begin_date": begin_date,
-                    "end_date": end_date,
+                    "begin_date": begin_date.strftime('%Y-%m-%d'),
+                    "end_date": end_date.strftime('%Y-%m-%d'),
                     "guests": {
                         "adults": adults,
                         "children": []

@@ -88,12 +88,10 @@ class UnifiedMediaSerializer(serializers.Serializer):
         return None
 
 
-
 class ObjectSerializer(serializers.ModelSerializer):
 
     object_inventories = ObjectInventorySerializer(source="objectinventory_set",many=True)
     services = ServiceSerializer(many=True)
-    # media = ObjectMediaFileSerializer(many=True, read_only=True)
     all_media = serializers.SerializerMethodField()
     banner = BannerSerializer(many=False)
     near_metro = MetroSerializer(many=True)
@@ -140,25 +138,21 @@ class ObjectSerializer(serializers.ModelSerializer):
         ]
 
 
-
-
 class ShortObjectSerializer(serializers.ModelSerializer):
     banner = BannerSerializer(many=False)
     near_metro = MetroSerializer(many=True)
     media = serializers.SerializerMethodField()
 
     def get_media(self, obj: models.Object):
-        # Пытаемся получить первый файл
+
         file_media = obj.file_media.first()
         if file_media:
             return UnifiedMediaSerializer.get_media_data(file_media)
 
-        # Если файла нет, возвращаем первую ссылку (если есть)
         url_media = obj.url_media.first()
         if url_media:
             return UnifiedMediaSerializer.get_media_data(url_media)
 
-        # Если медиа нет вообще
         return None
 
     class Meta:
