@@ -1,3 +1,6 @@
+import logging
+
+from django.http import HttpResponse
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 import django_filters
@@ -6,7 +9,37 @@ from . import models, filters
 from . import serializers
 from . import models
 
+from .services import realtycalendar, utils
 
+
+# admin views
+def import_objects(request):
+    RC = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
+    rc_objects: list[realtycalendar.models.Apartment] = RC.get_all_objects()
+
+    for rc_object in rc_objects:
+        data = {
+            'id': rc_object.id,
+            'short_name': rc_object.title,
+            'cost': rc_object.price.common.without_discount,
+            'city': rc_object.city.title,
+            'amount_rooms': rc_object.rooms,
+            'address': rc_object.address,
+            'description': rc_object.desc,
+            'capacity': rc_object.capacity,
+            'space': rc_object.area,
+            'floor': rc_object.floor,
+            'sleeps': rc_object.sleeps,
+            'url_medias': rc_object.photos
+        }
+        try:
+            utils.create_or_update_object(data)
+        except Exception as e:
+            logging.exception(e)
+    return HttpResponse(status=200)
+
+
+# apis
 class ListObjects(ListAPIView):
     serializer_class = serializers.ShortObjectSerializer
     queryset = models.Object.objects.all()
@@ -16,7 +49,6 @@ class ListObjects(ListAPIView):
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
         return response
-
 
 class RetrieveObject(RetrieveAPIView):
 
@@ -28,11 +60,9 @@ class RetrieveObject(RetrieveAPIView):
         serializer = self.get_serializer(obj)
         return Response(serializer.data)
 
-
 class TypeObjectListAPIView(ListAPIView):
     queryset = models.TypeObject.objects.all()
     serializer_class = serializers.TypeObjectSerializer
-
 
 class CategoryListAPIView(ListAPIView):
     queryset = models.Category.objects.all()

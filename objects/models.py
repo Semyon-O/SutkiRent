@@ -90,16 +90,30 @@ class Object(models.Model):
 
 # Модель для хранения медиафайлов
 class ObjectsMediaFile(models.Model):
-    file = models.FileField(upload_to='objects/', verbose_name=_('Файл'))
+    file = models.FileField(upload_to='objects/', verbose_name=_('Файл'), null=True, blank=True)
     object = models.ForeignKey(
-        Object, on_delete=models.CASCADE, related_name='media'
+        Object, on_delete=models.CASCADE, related_name='file_media'
     )
 
     def __str__(self):
-        return f"{self.file.name}"
+        return self.file.name
+
+
+class UrlObjectMedia(models.Model):
+    url = models.URLField(verbose_name=_('URL изображения'))
+    object = models.ForeignKey(
+        Object, on_delete=models.CASCADE, related_name='url_media'
+    )
+    is_external = models.BooleanField(default=True, verbose_name=_('Внешний ресурс'))
+
+    def __str__(self):
+        return self.url
+
 
 class Service(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Услуги')
+    name = models.CharField(max_length=255, verbose_name='Идентификатор услуги')
+    title_to_show = models.CharField(max_length=255, verbose_name="Услуга отб.на сайте", null=True, blank=True)
+    icon = models.FileField(verbose_name="Иконка", null=True, blank=True)
 
     def __str__(self):
         return self.name

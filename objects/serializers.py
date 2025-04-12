@@ -63,14 +63,52 @@ class BannerSerializer(serializers.ModelSerializer):
         model = models.Banner
         fields = '__all__'
 
+
+class UnifiedMediaSerializer(serializers.Serializer):
+    """Сериализатор, объединяющий MediaFile и UrlObjectMedia."""
+    source_type = serializers.CharField()  # "file" или "url"
+    url = serializers.URLField()
+
+    class Meta:
+        fields = ['source_type', 'url']
+
+    @staticmethod
+    def get_media_data(obj: 'models.UrlObjectMedia | models.ObjectsMediaFile'):
+        """Преобразует объект в единый формат."""
+        if isinstance(obj, models.UrlObjectMedia):  # Проверка на внешнюю ссылку
+            return {
+                'source_type': 'url',
+                'url': obj.url,  # Внешний URL
+            }
+        elif isinstance(obj, models.ObjectsMediaFile):  # Проверка на файл
+            return {
+                'source_type': 'file',
+                'url': obj.file.url,  # URL файла на сервере
+            }
+        return None  # Если передан неподдерживаемый тип
+
+
+
 class ObjectSerializer(serializers.ModelSerializer):
 
     object_inventories = ObjectInventorySerializer(source="objectinventory_set",many=True)
     services = ServiceSerializer(many=True)
-    media = ObjectMediaFileSerializer(many=True, read_only=True)
+    # media = ObjectMediaFileSerializer(many=True, read_only=True)
+    all_media = serializers.SerializerMethodField()
     banner = BannerSerializer(many=False)
     near_metro = MetroSerializer(many=True)
 
+    def get_all_media(self, obj: models.Object):
+        file_medias = obj.file_media.all()
+        url_medias = obj.url_media.all()
+
+        unified_media = []
+        for media in list(file_medias) + list(url_medias):
+            data = UnifiedMediaSerializer.get_media_data(media)
+            if data:
+                unified_media.append(data)
+
+        return unified_media
 
     class Meta:
         model = models.Object
@@ -98,8 +136,10 @@ class ObjectSerializer(serializers.ModelSerializer):
             'object_inventories',
             'services',
             'near_metro',
-            'media',
+            'all_media',
         ]
+
+
 
 
 class ShortObjectSerializer(serializers.ModelSerializer):
@@ -124,6 +164,5 @@ class ShortObjectSerializer(serializers.ModelSerializer):
             'space',
             'address',
             'near_metro',
-            'media',
         ]
 

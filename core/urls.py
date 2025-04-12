@@ -25,6 +25,7 @@ from contents import urls as contents_urls
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+from objects.views import import_objects
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -46,4 +47,5 @@ urlpatterns = [
    path('admin/', admin.site.urls),
    path('api/objects/', include(object_urls.url_patterns)),
    path('api/articles/', include(contents_urls.urlpatterns)),
+   path('import/objects/data', import_objects),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

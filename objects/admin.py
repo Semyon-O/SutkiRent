@@ -6,6 +6,10 @@ class MediaFileAdmin(admin.TabularInline):
     model = models.ObjectsMediaFile
     extra = 1
 
+class URLObjectMediaAdmin(admin.TabularInline):
+    model = models.UrlObjectMedia
+    extra = 1
+
 class ServicesObjectInlines(admin.TabularInline):
     model = models.ObjectServices
     extra = 3
@@ -21,7 +25,11 @@ class InventoryObjectInline(admin.TabularInline):
 
 @admin.register(models.Object)
 class ObjectAdmin(admin.ModelAdmin):
-    inlines = [ServicesObjectInlines,InventoryObjectInline, MetroObjectInlines, MediaFileAdmin]
+    inlines = [ServicesObjectInlines,InventoryObjectInline,
+               MetroObjectInlines,
+               MediaFileAdmin,
+               URLObjectMediaAdmin,
+            ]
 
 
 admin.site.register(models.Region)
