@@ -79,10 +79,14 @@ class RealtyCalendar:
                 break
 
             for raw_object in raw_data:
-                serialized_object = models.Apartment(**raw_object)
-                list_object.append(serialized_object)
+                try:
+                    serialized_object = models.Apartment(**raw_object)
+                    list_object.append(serialized_object)
+                except Exception:
+                    pass
 
             page += 1
+
         return list_object
 
 
