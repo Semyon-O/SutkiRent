@@ -1,6 +1,9 @@
 import logging
+from typing import List
 
+from django.db.models import QuerySet
 from django.http import HttpResponse
+from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 import django_filters
@@ -10,6 +13,7 @@ from . import serializers
 from . import models
 
 from .services import realtycalendar, utils
+from .services.realtycalendar.models import Apartment
 
 
 # admin views
@@ -38,7 +42,7 @@ def import_objects(request):
             logging.exception(e)
     return HttpResponse(status=200)
 
-
+# GET /api/objects/?cost_min=&cost_max=&type=&amount_rooms_min=&amount_rooms_max=&floor_min=&floor_max=&region=&city=&space_min=&space_max=&booking_date_after=2025-04-13&booking_date_before=2025-04-17
 # apis
 class ListObjects(ListAPIView):
     serializer_class = serializers.ShortObjectSerializer
@@ -47,8 +51,87 @@ class ListObjects(ListAPIView):
     filterset_class = filters.ObjectFilter
 
     def list(self, request, *args, **kwargs):
-        response = super().list(request, *args, **kwargs)
-        return response
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+    def get_queryset(self):
+        """Основной метод получения queryset с поэтапной фильтрацией"""
+        queryset = super().get_queryset()
+        # Фильтрация по данным из RealtyCalendar
+        rc_apartments = self._get_filtered_rc_apartments()
+
+        if rc_apartments:
+            queryset = self._apply_rc_filters(queryset, rc_apartments)
+
+        # Стандартная фильтрация Django
+        queryset = self.filter_queryset(queryset)
+
+        # Добавляем данные о ценах
+        if rc_apartments:
+            queryset = self._enrich_with_prices(queryset, rc_apartments)
+            return queryset
+
+        return queryset
+
+    def _get_filtered_rc_apartments(self) -> List[Apartment]:
+        """Фильтрация данных из RealtyCalendar по датам и цене"""
+        rc_apartments = self._filter_by_dates()
+
+        if rc_apartments and 'cost' in self.request.query_params:
+            rc_apartments = self._filter_by_price(rc_apartments)
+
+        return rc_apartments
+
+    def _filter_by_dates(self) -> List[Apartment]:
+        """Фильтрация объектов по датам через API RealtyCalendar"""
+        begin_date = self.request.query_params.get('booking_date_after')
+        end_date = self.request.query_params.get('booking_date_before')
+
+        if not (begin_date or end_date):
+            return []
+
+        try:
+            rc = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
+            return rc.get_objects_by_filters(
+                begin_date=begin_date,
+                end_date=end_date
+            )
+        except Exception as e:
+            logging.error(f"RealtyCalendar API error: {str(e)}")
+            return []
+
+    def _filter_by_price(self, apartments: List[Apartment]) -> List[Apartment]:
+        """Фильтрация объектов по стоимости"""
+        cost_param = self.request.query_params.get('cost')
+
+        try:
+            if cost_param:
+                price_min, price_max = map(float, cost_param.split(','))
+                return Apartment.filter_by_price(
+                    apartments,
+                    price_min=price_min,
+                    price_max=price_max
+                )
+        except (ValueError, AttributeError) as e:
+            logging.warning(f"Invalid cost parameter: {cost_param}. Error: {str(e)}")
+
+        return apartments
+
+    def _apply_rc_filters(self, queryset: QuerySet, rc_apartments: List[Apartment]) -> QuerySet:
+        """Применение фильтров по ID из RealtyCalendar"""
+        available_ids = [apt.id for apt in rc_apartments]
+        return queryset.filter(id__in=available_ids)
+
+    def _enrich_with_prices(self, queryset: QuerySet, rc_apartments: List[Apartment]):
+        """Добавление актуальных цен к объектам"""
+        price_map = {apt.id: apt.price.common.without_discount for apt in rc_apartments}
+        for obj in queryset:
+            if obj.id in price_map:
+                obj.cost = price_map[obj.id]
+        return queryset
 
 class RetrieveObject(RetrieveAPIView):
 
@@ -60,17 +143,21 @@ class RetrieveObject(RetrieveAPIView):
         serializer = self.get_serializer(obj)
         return Response(serializer.data)
 
+
 class TypeObjectListAPIView(ListAPIView):
     queryset = models.TypeObject.objects.all()
     serializer_class = serializers.TypeObjectSerializer
+
 
 class CategoryListAPIView(ListAPIView):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
 
+
 class CategoryRetrieveAPIView(RetrieveAPIView):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
+
 
 class RegionListAPIView(ListAPIView):
     queryset = models.Region.objects.all()

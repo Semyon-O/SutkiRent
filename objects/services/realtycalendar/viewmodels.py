@@ -57,8 +57,8 @@ class RealtyCalendar:
             response = requests.post(
                 self.url + path_url,
                 json={
-                    "begin_date": begin_date.strftime('%Y-%m-%d'),
-                    "end_date": end_date.strftime('%Y-%m-%d'),
+                    "begin_date": begin_date,
+                    "end_date": end_date,
                     "guests": {
                         "adults": adults,
                         "children": []

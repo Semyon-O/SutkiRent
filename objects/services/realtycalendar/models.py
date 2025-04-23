@@ -82,3 +82,29 @@ class Apartment(BaseModel):
             str: lambda v: v.encode('unicode_escape').decode('utf-8') if isinstance(v, str) else v
         }
 
+    @classmethod
+    def filter_by_price(
+            cls,
+            apartments: list['Apartment'],
+            price_min: Optional[float] = None,
+            price_max: Optional[float] = None
+    ) -> list['Apartment']:
+        """
+        Фильтрует список квартир по заданному диапазону цен.
+
+        :param apartments: Список объектов Apartment для фильтрации
+        :param price_min: Минимальная цена (опционально)
+        :param price_max: Максимальная цена (опционально)
+        :return: Отфильтрованный список квартир
+        """
+        filtered = []
+
+        for apartment in apartments:
+            current_price = apartment.price.common.without_discount
+
+            # Проверяем попадание в диапазон
+            if ((price_min is None or current_price >= price_min) and
+                    (price_max is None or current_price <= price_max)):
+                filtered.append(apartment)
+
+        return filtered

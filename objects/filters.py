@@ -2,7 +2,6 @@ import logging
 
 import django_filters
 from .models import Object, Region, TypeObject, Metro
-from .services import realtycalendar
 
 
 class ObjectFilter(django_filters.FilterSet):
@@ -27,42 +26,20 @@ class ObjectFilter(django_filters.FilterSet):
     class Meta:
         model = Object
         fields = ['cost', 'type', 'amount_rooms', 'floor', 'region', 'city', 'space', 'booking_date']
-
-    def filter_queryset(self, queryset):
-        # 1. Сначала применяем фильтр по датам (если он есть в запросе)
-        if 'booking_date' in self.form.cleaned_data:
-            booking_value = self.form.cleaned_data['booking_date']
-            queryset = self.filter_by_booking_dates(queryset, 'booking_date', booking_value)
-
-        # 2. Затем применяем все остальные фильтры в стандартном порядке
-        for name, value in self.form.cleaned_data.items():
-            if name != 'booking_date' and value:
-                queryset = self.filters[name].filter(queryset, value)
-
-        return queryset
+    #
+    # def filter_queryset(self, queryset):
+    #     # 1. Сначала применяем фильтр по датам (если он есть в запросе)
+    #     if 'booking_date' in self.form.cleaned_data:
+    #         booking_value = self.form.cleaned_data['booking_date']
+    #         queryset = self.filter_by_booking_dates(queryset, 'booking_date', booking_value)
+    #
+    #     # 2. Затем применяем все остальные фильтры в стандартном порядке
+    #     for name, value in self.form.cleaned_data.items():
+    #         if name != 'booking_date' and value:
+    #             queryset = self.filters[name].filter(queryset, value)
+    #
+    #     return queryset
 
     def filter_by_booking_dates(self, queryset, name, value):
-        """Фильтрация объектов по датам бронирования через внешний сервис."""
-        if not value:
-            return queryset
-
-        try:
-            start_date = value.start
-            end_date = value.stop
-
-            if not start_date or not end_date:
-                return queryset
-
-            rc_service = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
-            booked_apartments = rc_service.get_objects_by_filters(
-                begin_date=start_date,
-                end_date=end_date
-            )
-
-            booked_ids = [apt.id for apt in booked_apartments]
-            return queryset.filter(id__in=booked_ids)
-
-        except Exception as e:
-            logging.error(f"Error filtering by booking dates: {str(e)}")
-            return queryset.none()
-
+        """Заглушка"""
+        return queryset
