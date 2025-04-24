@@ -6,7 +6,7 @@ from .models import Object, Region, TypeObject, Metro
 
 class ObjectFilter(django_filters.FilterSet):
     # Все ваши фильтры остаются без изменений
-    cost = django_filters.RangeFilter(field_name='cost')
+    cost = django_filters.RangeFilter(field_name='cost', method='filter_cost')
     type = django_filters.ModelChoiceFilter(queryset=TypeObject.objects.all())
     amount_rooms = django_filters.RangeFilter(field_name="amount_rooms")
     floor = django_filters.RangeFilter(field_name="floor")
@@ -23,11 +23,21 @@ class ObjectFilter(django_filters.FilterSet):
         method='filter_by_booking_dates'
     )
 
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.has_date_filter = any(
+            f'booking_date{sep}' in self.data
+            for sep in ['', '_after', '_before']
+        )
+
     class Meta:
         model = Object
         fields = ['cost', 'type', 'amount_rooms', 'floor', 'region', 'city', 'space', 'booking_date']
     #
     # def filter_queryset(self, queryset):
+    #     print(queryset)
+    #     super().filter_queryset(queryset)
     #     # 1. Сначала применяем фильтр по датам (если он есть в запросе)
     #     if 'booking_date' in self.form.cleaned_data:
     #         booking_value = self.form.cleaned_data['booking_date']
@@ -39,6 +49,14 @@ class ObjectFilter(django_filters.FilterSet):
     #             queryset = self.filters[name].filter(queryset, value)
     #
     #     return queryset
+
+    def filter_cost(self, queryset, name, value):
+        """Кастомный фильтр по цене с учётом сценария"""
+        if self.has_date_filter:
+
+            return queryset
+
+        return super().filter(name, value)
 
     def filter_by_booking_dates(self, queryset, name, value):
         """Заглушка"""

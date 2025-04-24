@@ -14,6 +14,7 @@ from . import models
 
 from .services import realtycalendar, utils
 from .services.realtycalendar.models import Apartment
+from .services.utils import measure_time
 
 
 # admin views
@@ -55,8 +56,6 @@ class ListObjects(ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-
     def get_queryset(self):
         """Основной метод получения queryset с поэтапной фильтрацией"""
         queryset = super().get_queryset()
@@ -80,12 +79,14 @@ class ListObjects(ListAPIView):
         """Фильтрация данных из RealtyCalendar по датам и цене"""
         rc_apartments = self._filter_by_dates()
 
-        if rc_apartments and 'cost' in self.request.query_params:
+
+        if rc_apartments and ('cost_min' in self.request.query_params and 'cost_max' in self.request.query_params):
             rc_apartments = self._filter_by_price(rc_apartments)
 
         return rc_apartments
 
     def _filter_by_dates(self) -> List[Apartment]:
+        # TODO: Решить проблему со скоростью загрузки информации. Пагинацию добавить или асинхронку
         """Фильтрация объектов по датам через API RealtyCalendar"""
         begin_date = self.request.query_params.get('booking_date_after')
         end_date = self.request.query_params.get('booking_date_before')
@@ -99,31 +100,33 @@ class ListObjects(ListAPIView):
                 begin_date=begin_date,
                 end_date=end_date
             )
+
         except Exception as e:
             logging.error(f"RealtyCalendar API error: {str(e)}")
             return []
 
     def _filter_by_price(self, apartments: List[Apartment]) -> List[Apartment]:
         """Фильтрация объектов по стоимости"""
-        cost_param = self.request.query_params.get('cost')
-
+        price_min = self.request.query_params.get('cost_min')
+        price_max = self.request.query_params.get('cost_max')
         try:
-            if cost_param:
-                price_min, price_max = map(float, cost_param.split(','))
+            if price_min or price_max:
                 return Apartment.filter_by_price(
                     apartments,
-                    price_min=price_min,
-                    price_max=price_max
+                    price_min=float(price_min),
+                    price_max=float(price_max)
                 )
         except (ValueError, AttributeError) as e:
-            logging.warning(f"Invalid cost parameter: {cost_param}. Error: {str(e)}")
+            logging.warning(f"Invalid cost parameter:. Error: {str(e)}")
 
         return apartments
+
 
     def _apply_rc_filters(self, queryset: QuerySet, rc_apartments: List[Apartment]) -> QuerySet:
         """Применение фильтров по ID из RealtyCalendar"""
         available_ids = [apt.id for apt in rc_apartments]
         return queryset.filter(id__in=available_ids)
+
 
     def _enrich_with_prices(self, queryset: QuerySet, rc_apartments: List[Apartment]):
         """Добавление актуальных цен к объектам"""
