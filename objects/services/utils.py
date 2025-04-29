@@ -27,7 +27,11 @@ def create_or_update_object(data: [dict]):
         region_obj = None
         if data.get('region'):
             region_obj, _ = Region.objects.get_or_create(
-                id=data['region'].get('name'),
+                id=data['region'].get('id'),
+                defaults={
+                    'id': data['region'].get('id'),
+                    'name': data['region'].get('name')
+                }
             )
 
         banner_obj = None
@@ -36,6 +40,7 @@ def create_or_update_object(data: [dict]):
                 id=data['banner'].get('id'),
                 defaults=data['banner']
             )
+
 
         # Создаем/обновляем основной объект
         obj, created = Object.objects.update_or_create(
@@ -62,6 +67,8 @@ def create_or_update_object(data: [dict]):
                 'finding_description': data.get('finding_description'),
                 'helpful_info': data.get('helpful_info'),
                 'parking_info': data.get('parking_info'),
+                'latitude': data.get("latitude"),
+                'longitude': data.get('longitude')
             }
         )
 

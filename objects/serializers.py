@@ -125,6 +125,8 @@ class ObjectSerializer(serializers.ModelSerializer):
             'banner',
             'space',
             'address',
+            'latitude',
+            'longitude',
             'description',
             'conditions_accommodation',
             'contacts',

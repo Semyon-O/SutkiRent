@@ -35,7 +35,13 @@ def import_objects(request):
             'space': rc_object.area,
             'floor': rc_object.floor,
             'sleeps': rc_object.sleeps,
-            'url_medias': rc_object.photos
+            'url_medias': rc_object.photos,
+            'region': {
+                'id': rc_object.city.id,
+                'name': rc_object.city.title
+            },
+            'latitude': rc_object.coordinates.lat,
+            'longitude': rc_object.coordinates.lon
         }
         try:
             utils.create_or_update_object(data)

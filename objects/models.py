@@ -76,6 +76,9 @@ class Object(models.Model):
     parking_info = models.TextField(null=True, blank=True, verbose_name='Информация по парковке')
     near_metro = models.ManyToManyField(to='Metro', db_index=True, null=True, through='NearMetroObject')
 
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
+
     services = models.ManyToManyField('Service', through='ObjectServices')
     inventories = models.ManyToManyField('Inventory', through='ObjectInventory')
 
