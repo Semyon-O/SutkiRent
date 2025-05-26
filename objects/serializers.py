@@ -1,11 +1,11 @@
 from rest_framework import serializers
 from . import models
 
+
 class TypeObjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.TypeObject
         fields = '__all__'
-
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,12 +19,10 @@ class RegionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
 class MetroSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Metro
         fields = '__all__'
-
 
 class ObjectServicesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -117,6 +115,7 @@ class ObjectSerializer(serializers.ModelSerializer):
             'type',
             'amount_rooms',
             'floor',
+            'amount_sleeps',
             'sleeps',
             'capacity',
             # 'category',
@@ -125,6 +124,9 @@ class ObjectSerializer(serializers.ModelSerializer):
             'banner',
             'space',
             'address',
+            'view_from_window',
+            'bathroom',
+            #
             'latitude',
             'longitude',
             'description',
@@ -165,6 +167,7 @@ class ShortObjectSerializer(serializers.ModelSerializer):
             'cost',
             'type',
             'amount_rooms',
+            'amount_sleeps',
             'sleeps',
             'floor',
             'capacity',
