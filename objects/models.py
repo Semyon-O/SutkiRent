@@ -59,7 +59,8 @@ class Object(models.Model):
     cost = models.IntegerField(db_index=True, verbose_name='Стоимость')
     type = models.ForeignKey(to=TypeObject, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Тип')
     amount_rooms = models.IntegerField(verbose_name="Количество комнат", null=True, blank=True, db_index=True)
-    sleeps = models.CharField(max_length=255, verbose_name="Количество спальных мест", null=True)
+    amount_sleeps = models.IntegerField(verbose_name='Количество спальных мест', null=True, blank=True, db_index=True)
+    sleeps = models.CharField(max_length=255, verbose_name="Количество спальных мест (описание)", null=True)
     capacity = models.IntegerField(verbose_name="Количество людей", null=True)
     floor = models.IntegerField(default=1, verbose_name="Этаж", null=True, db_index=True)
     category = models.ForeignKey(to=Category, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Категория')
@@ -75,6 +76,9 @@ class Object(models.Model):
     helpful_info = models.TextField(null=True, blank=True, verbose_name='Полезная информация')
     parking_info = models.TextField(null=True, blank=True, verbose_name='Информация по парковке')
     near_metro = models.ManyToManyField(to='Metro', db_index=True, null=True, through='NearMetroObject')
+
+    view_from_window = models.ForeignKey(to='ViewFromWindow', on_delete=models.SET_NULL,db_index=True, null=True, blank=True)
+    bathroom = models.ForeignKey(to='Bathroom', on_delete=models.SET_NULL, db_index=True, null=True, blank=True)
 
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
@@ -101,7 +105,6 @@ class ObjectsMediaFile(models.Model):
     def __str__(self):
         return self.file.name
 
-
 class UrlObjectMedia(models.Model):
     url = models.URLField(verbose_name=_('URL изображения'))
     object = models.ForeignKey(
@@ -112,11 +115,10 @@ class UrlObjectMedia(models.Model):
     def __str__(self):
         return self.url
 
-
 class Service(models.Model):
     name = models.CharField(max_length=255, verbose_name='Идентификатор услуги')
     title_to_show = models.CharField(max_length=255, verbose_name="Услуга отб.на сайте", null=True, blank=True)
-    icon = models.FileField(verbose_name="Иконка", null=True, blank=True)
+    icon = models.FileField(verbose_name="Иконка", null=True, blank=True, upload_to='object_icons/')
 
     def __str__(self):
         return self.name
@@ -127,9 +129,9 @@ class Service(models.Model):
         ordering = ['name']
         db_table = 'services'
 
-
 class Inventory(models.Model):
     name = models.CharField(max_length=255, verbose_name='Инвентарь')
+
 
     def __str__(self):
         return self.name
@@ -140,13 +142,11 @@ class Inventory(models.Model):
         ordering = ['name']
         db_table = 'inventories'
 
-
 class Metro(models.Model):
     name = models.CharField(max_length=255,primary_key=True)
 
     def __str__(self):
         return self.name
-
 
 class NearMetroObject(models.Model):
     metro = models.ForeignKey(to=Metro, on_delete=models.SET_NULL, null=True)
@@ -176,3 +176,12 @@ class ObjectInventory(models.Model):
         verbose_name_plural = "Инвентарь для объекта"
         verbose_name = "Инвентарь для объекта"
         ordering = ['object', 'inventory']
+
+class ViewFromWindow(models.Model):
+    notation_view = models.CharField(primary_key=True, max_length=255, db_index=True)
+
+class Accessibility(models.Model):
+    accessibility_type = models.CharField(primary_key=True, max_length=255, db_index=True)
+
+class Bathroom(models.Model):
+    bathroom_type = models.CharField(primary_key=True, max_length=255, db_index=True)

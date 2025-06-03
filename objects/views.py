@@ -14,7 +14,7 @@ from . import models
 
 from .services import realtycalendar, utils
 from .services.realtycalendar.models import Apartment
-from .services.utils import measure_time
+
 
 
 # admin views
@@ -48,6 +48,11 @@ def import_objects(request):
         except Exception as e:
             logging.exception(e)
     return HttpResponse(status=200)
+
+def index(request):
+    logging.log(logging.INFO, request.META)
+    headers = str(request.META)
+    return HttpResponse(headers)
 
 # GET /api/objects/?cost_min=&cost_max=&type=&amount_rooms_min=&amount_rooms_max=&floor_min=&floor_max=&region=&city=&space_min=&space_max=&booking_date_after=2025-04-13&booking_date_before=2025-04-17
 # apis
@@ -127,14 +132,12 @@ class ListObjects(ListAPIView):
 
         return apartments
 
-
     def _apply_rc_filters(self, queryset: QuerySet, rc_apartments: List[Apartment]) -> QuerySet:
         """Применение фильтров по ID из RealtyCalendar"""
         available_ids = [apt.id for apt in rc_apartments]
         return queryset.filter(id__in=available_ids)
 
-
-    def _enrich_with_prices(self, queryset: QuerySet, rc_apartments: List[Apartment]):
+    def _enrich_with_prices(self, queryset: QuerySet, rc_apartments: List[Apartment]) -> QuerySet:
         """Добавление актуальных цен к объектам"""
         price_map = {apt.id: apt.price.common.without_discount for apt in rc_apartments}
         for obj in queryset:
