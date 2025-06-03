@@ -237,3 +237,7 @@ class BathroomTypesList(ListAPIView):
 class ViewFromWindowList(ListAPIView):
     queryset = models.ViewFromWindow.objects.all()
     serializer_class = serializers.ViewFromWindowSerializer
+
+class AccessibilityTypes(ListAPIView):
+    queryset = models.Accessibility.objects.all()
+    serializer_class = serializers.AccessibilitySerializer
