@@ -106,21 +106,14 @@ def measure_time(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        # Начало замера
         start_time = time.perf_counter()
 
-        # Вызов оригинальной функции
         result = func(*args, **kwargs)
-
-        # Конец замера
         elapsed_time = time.perf_counter() - start_time
 
-        # Формируем информацию о вызове
         func_name = func.__name__
         module_name = func.__module__
         full_name = f"{module_name}.{func_name}" if module_name else func_name
-
-        # Логируем результат
         logging.info(f"⏱️ Функция {full_name} выполнилась за {elapsed_time:.4f} секунд")
         print(f"⏱️ [TIME] {full_name}(): {elapsed_time:.4f}s")  # Дублируем в консоль
 
