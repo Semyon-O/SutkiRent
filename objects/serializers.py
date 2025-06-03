@@ -175,6 +175,8 @@ class ShortObjectSerializer(serializers.ModelSerializer):
             'space',
             'address',
             'near_metro',
-            'media'
+            'media',
+            'latitude',
+            'longitude',
         ]
 
