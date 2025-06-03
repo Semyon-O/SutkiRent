@@ -86,6 +86,12 @@ class UnifiedMediaSerializer(serializers.Serializer):
         return None
 
 
+class AccessibilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Accessibility
+        fields = '__all__'
+
+
 class ObjectSerializer(serializers.ModelSerializer):
 
     object_inventories = ObjectInventorySerializer(source="objectinventory_set",many=True)
@@ -93,6 +99,7 @@ class ObjectSerializer(serializers.ModelSerializer):
     all_media = serializers.SerializerMethodField()
     banner = BannerSerializer(many=False)
     near_metro = MetroSerializer(many=True)
+    accessibility = AccessibilitySerializer(many=True)
 
     def get_all_media(self, obj: models.Object):
         file_medias = obj.file_media.all()
@@ -139,6 +146,7 @@ class ObjectSerializer(serializers.ModelSerializer):
             'services',
             'near_metro',
             'all_media',
+            'accessibility'
         ]
 
 
@@ -183,3 +191,15 @@ class ShortObjectSerializer(serializers.ModelSerializer):
             'longitude',
         ]
 
+
+class ViewFromWindowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.ViewFromWindow
+        fields = '__all__'
+
+
+class BathroomTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Bathroom
+        fields = '__all__'

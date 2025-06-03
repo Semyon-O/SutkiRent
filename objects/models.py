@@ -75,7 +75,7 @@ class Object(models.Model):
     finding_description = models.TextField(null=True, blank=True, verbose_name='Как найти')
     helpful_info = models.TextField(null=True, blank=True, verbose_name='Полезная информация')
     parking_info = models.TextField(null=True, blank=True, verbose_name='Информация по парковке')
-    near_metro = models.ManyToManyField(to='Metro', db_index=True, null=True, through='NearMetroObject')
+    near_metro = models.ManyToManyField(to='Metro', db_index=True, through='NearMetroObject')
 
     view_from_window = models.ForeignKey(to='ViewFromWindow', on_delete=models.SET_NULL,db_index=True, null=True, blank=True)
     bathroom = models.ForeignKey(to='Bathroom', on_delete=models.SET_NULL, db_index=True, null=True, blank=True)
@@ -85,6 +85,7 @@ class Object(models.Model):
 
     services = models.ManyToManyField('Service', through='ObjectServices')
     inventories = models.ManyToManyField('Inventory', through='ObjectInventory')
+    accessibility = models.ManyToManyField('Accessibility', through='ObjectAccessibilities',)
 
     def __str__(self):
         return f"{self.short_name} ({self.pk})"
@@ -177,11 +178,21 @@ class ObjectInventory(models.Model):
         verbose_name = "Инвентарь для объекта"
         ordering = ['object', 'inventory']
 
+class ObjectAccessibilities(models.Model):
+    object_id = models.ForeignKey(Object, on_delete=models.CASCADE, null=True)
+    accessibility_type = models.ForeignKey('Accessibility', on_delete=models.CASCADE, null=True)
+
+# TODO: Исправить на числовые ID-шники
 class ViewFromWindow(models.Model):
     notation_view = models.CharField(primary_key=True, max_length=255, db_index=True)
 
+
 class Accessibility(models.Model):
-    accessibility_type = models.CharField(primary_key=True, max_length=255, db_index=True)
+    accessibility_type = models.CharField(max_length=255, db_index=True, null=True)
+
+    def __str__(self):
+        return str(self.accessibility_type)
+
 
 class Bathroom(models.Model):
     bathroom_type = models.CharField(primary_key=True, max_length=255, db_index=True)

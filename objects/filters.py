@@ -1,7 +1,7 @@
 import logging
 
 import django_filters
-from .models import Object, Region, TypeObject, Metro, Inventory, Service, ViewFromWindow, Bathroom
+from .models import Object, Region, TypeObject, Metro, Inventory, Service, ViewFromWindow, Bathroom, Accessibility
 
 
 class ObjectFilter(django_filters.FilterSet):
@@ -34,6 +34,10 @@ class ObjectFilter(django_filters.FilterSet):
     services = django_filters.ModelMultipleChoiceFilter(
         field_name="services",
         queryset=Service.objects.all()
+    )
+    accessibility = django_filters.ModelMultipleChoiceFilter(
+        field_name='accessibility',
+        queryset=Accessibility.objects.all()
     )
 
     booking_date = django_filters.DateFromToRangeFilter(

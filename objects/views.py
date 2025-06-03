@@ -227,3 +227,13 @@ class ObjectInventoryListAPIView(ListAPIView):
 class ObjectInventoryRetrieveAPIView(RetrieveAPIView):
     queryset = models.ObjectInventory.objects.all()
     serializer_class = serializers.ObjectInventorySerializer
+
+
+class BathroomTypesList(ListAPIView):
+    queryset = models.Bathroom.objects.all()
+    serializer_class = serializers.BathroomTypesSerializer
+
+
+class ViewFromWindowList(ListAPIView):
+    queryset = models.ViewFromWindow.objects.all()
+    serializer_class = serializers.ViewFromWindowSerializer
