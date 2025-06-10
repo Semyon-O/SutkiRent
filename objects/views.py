@@ -76,7 +76,6 @@ class ListObjects(ListAPIView):
         if rc_apartments:
             queryset = self._apply_rc_filters(queryset, rc_apartments)
 
-        # Стандартная фильтрация Django
         queryset = self.filter_queryset(queryset)
 
         # Добавляем данные о ценах
@@ -97,19 +96,23 @@ class ListObjects(ListAPIView):
         return rc_apartments
 
     def _filter_by_dates(self) -> List[Apartment]:
-        # TODO: Решить проблему со скоростью загрузки информации. Пагинацию добавить или асинхронку
         """Фильтрация объектов по датам через API RealtyCalendar"""
+
+
         begin_date = self.request.query_params.get('booking_date_after')
         end_date = self.request.query_params.get('booking_date_before')
+        page = self.request.query_params.get('page', None)
+
+        rc = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
 
         if not (begin_date or end_date):
             return []
 
         try:
-            rc = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
             return rc.get_objects_by_filters(
                 begin_date=begin_date,
-                end_date=end_date
+                end_date=end_date,
+                page=page
             )
 
         except Exception as e:
