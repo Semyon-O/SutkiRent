@@ -15,11 +15,11 @@ from . import models
 from .services import realtycalendar, utils
 from .services.realtycalendar.models import Apartment
 
-
+RC = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
 
 # admin views
 def import_objects(request):
-    RC = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
+
     rc_objects: list[realtycalendar.models.Apartment] = RC.get_all_objects()
 
     for rc_object in rc_objects:
@@ -52,6 +52,7 @@ def import_objects(request):
 def index(request):
     logging.log(logging.INFO, request.META)
     headers = str(request.META)
+    RC.get_object_date(149542, begin_date="2025-07-01", end_date="2025-08-01")
     return HttpResponse(headers)
 
 # GET /api/objects/?cost_min=&cost_max=&type=&amount_rooms_min=&amount_rooms_max=&floor_min=&floor_max=&region=&city=&space_min=&space_max=&booking_date_after=2025-04-13&booking_date_before=2025-04-17

@@ -1,3 +1,4 @@
+import datetime
 from typing import List, Optional, Dict
 from pydantic import BaseModel
 
@@ -57,6 +58,12 @@ class MetroStation(BaseModel):
 class City(BaseModel):
     id: int
     title: str
+
+class ObjectCalendar(BaseModel):
+    date: datetime.date
+    available: bool = True
+    price: int = None
+    min_stay: int = 1
 
 
 class Apartment(BaseModel):

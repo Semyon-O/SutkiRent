@@ -124,3 +124,31 @@ class RealtyCalendar:
                 pass
 
         return list_object
+
+    def get_object_date(self, object_id: int, begin_date="2025-01-01", end_date="2025-12-31"):
+        path_url = "/calendar"
+        payload = {
+            "apartment_id": "54702",
+            "begin_date": "2025-01-01",
+            "end_date": "2025-12-31",
+            "guests": {
+                "adults": 1,
+                "children": []
+            }
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "insomnia/11.0.2"
+        }
+
+        response = requests.request("POST", self.url+path_url, json=payload, headers=headers)
+
+        raw_dates = response.json()
+        list_object_date = []
+        for date in raw_dates:
+            try:
+                serialized_object = models.Price(**date)
+                list_object_date.append(serialized_object)
+            except Exception:
+                pass
+        return list_object_date

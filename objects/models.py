@@ -96,6 +96,21 @@ class Object(models.Model):
         db_table = 'objects'
 
 
+class DailyPrice(models.Model):
+    object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name='daily_prices',db_index=True)
+    date = models.DateField(db_index=True)
+    price = models.IntegerField(db_index=True)
+    is_available = models.BooleanField(default=True)
+    min_stay_days = models.IntegerField(default=3)
+    indexes = [
+        models.Index(fields=['date', 'is_available']),
+        models.Index(fields=['price']),
+        models.Index(fields=['object', 'date', 'is_available']),
+    ]
+
+    class Meta:
+        unique_together = ('object', 'date')
+
 # Модель для хранения медиафайлов
 class ObjectsMediaFile(models.Model):
     file = models.FileField(upload_to='objects/', verbose_name=_('Файл'), null=True, blank=True)

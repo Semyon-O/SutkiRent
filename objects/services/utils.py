@@ -1,6 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
+import typing
 
 from objects.models import *
+
 
 
 def create_or_update_object(data: [dict]):
@@ -94,6 +96,19 @@ def create_or_update_object(data: [dict]):
 
     except Exception as e:
         raise Exception(f"Error creating/updating object: {str(e)}")
+
+
+def load_price_per_object(object_id: typing.Union[int | Object]):
+    if isinstance(object_id, int):
+        ...
+
+    if isinstance(object_id, Object):
+        ...
+
+
+
+
+
 
 
 import time
