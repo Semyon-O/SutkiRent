@@ -1,9 +1,11 @@
 import datetime
 import logging
 import pprint
+from typing import List
 
 import requests
 from . import models
+from .models import ObjectCalendar
 
 
 class RealtyCalendar:
@@ -125,12 +127,12 @@ class RealtyCalendar:
 
         return list_object
 
-    def get_object_date(self, object_id: int, begin_date="2025-01-01", end_date="2025-12-31"):
+    def get_object_date(self, object_id: int, begin_date="2025-01-01", end_date="2025-12-31") -> List[ObjectCalendar]:
         path_url = "/calendar"
         payload = {
-            "apartment_id": "54702",
-            "begin_date": "2025-01-01",
-            "end_date": "2025-12-31",
+            "apartment_id": str(object_id),
+            "begin_date": str(begin_date),
+            "end_date": str(end_date),
             "guests": {
                 "adults": 1,
                 "children": []
@@ -145,10 +147,10 @@ class RealtyCalendar:
 
         raw_dates = response.json()
         list_object_date = []
-        for date in raw_dates:
+        for date in raw_dates.get("calendar", []):
             try:
-                serialized_object = models.Price(**date)
+                serialized_object = models.ObjectCalendar(**date)
                 list_object_date.append(serialized_object)
-            except Exception:
-                pass
+            except Exception as e:
+                print(e)
         return list_object_date

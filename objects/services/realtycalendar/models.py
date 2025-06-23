@@ -62,7 +62,7 @@ class City(BaseModel):
 class ObjectCalendar(BaseModel):
     date: datetime.date
     available: bool = True
-    price: int = None
+    price: Optional[int] = None
     min_stay: int = 1
 
 

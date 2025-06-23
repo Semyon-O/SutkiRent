@@ -99,7 +99,7 @@ class Object(models.Model):
 class DailyPrice(models.Model):
     object = models.ForeignKey(Object, on_delete=models.CASCADE, related_name='daily_prices',db_index=True)
     date = models.DateField(db_index=True)
-    price = models.IntegerField(db_index=True)
+    price = models.IntegerField(db_index=True, null=True)
     is_available = models.BooleanField(default=True)
     min_stay_days = models.IntegerField(default=3)
     indexes = [

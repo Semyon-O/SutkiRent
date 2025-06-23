@@ -52,7 +52,8 @@ def import_objects(request):
 def index(request):
     logging.log(logging.INFO, request.META)
     headers = str(request.META)
-    RC.get_object_date(149542, begin_date="2025-07-01", end_date="2025-08-01")
+    a = RC.get_object_date(149542, begin_date="2025-07-01", end_date="2025-08-01")
+
     return HttpResponse(headers)
 
 # GET /api/objects/?cost_min=&cost_max=&type=&amount_rooms_min=&amount_rooms_max=&floor_min=&floor_max=&region=&city=&space_min=&space_max=&booking_date_after=2025-04-13&booking_date_before=2025-04-17
