@@ -66,9 +66,20 @@ class ListObjects(ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
+    @measure_time
     def get_queryset(self):
         """Основной метод получения queryset с поэтапной фильтрацией"""
+
+        begin_date = self.request.query_params.get('booking_date_after')
+        end_date = self.request.query_params.get('booking_date_before')
+        page = self.request.query_params.get('page', '1')
+        if not begin_date and not end_date:
+            all_objects = super().get_queryset()
+            if page == '1': # Вывод всех объектов только по первой странице, остальные страницы отсекаются.
+                return all_objects
+            else:
+                return all_objects.none()
+
         queryset = super().get_queryset()
         # Фильтрация по данным из RealtyCalendar
         rc_apartments = self._get_filtered_rc_apartments()
@@ -105,7 +116,7 @@ class ListObjects(ListAPIView):
 
         begin_date = self.request.query_params.get('booking_date_after')
         end_date = self.request.query_params.get('booking_date_before')
-        page = self.request.query_params.get('page', 1)
+        page = self.request.query_params.get('page', '1')
 
         rc = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
 
