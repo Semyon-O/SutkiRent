@@ -14,7 +14,7 @@ from . import models
 
 from .services import realtycalendar, utils
 from .services.realtycalendar.models import Apartment
-
+from .services.utils import measure_time
 
 
 # admin views
@@ -75,6 +75,8 @@ class ListObjects(ListAPIView):
 
         if rc_apartments:
             queryset = self._apply_rc_filters(queryset, rc_apartments)
+        else:
+            return  queryset.none()
 
         queryset = self.filter_queryset(queryset)
 
@@ -89,6 +91,8 @@ class ListObjects(ListAPIView):
         """Фильтрация данных из RealtyCalendar по датам и цене"""
         rc_apartments = self._filter_by_dates()
 
+        if rc_apartments == []:
+            return []
 
         if rc_apartments and ('cost_min' in self.request.query_params and 'cost_max' in self.request.query_params):
             rc_apartments = self._filter_by_price(rc_apartments)
@@ -101,7 +105,7 @@ class ListObjects(ListAPIView):
 
         begin_date = self.request.query_params.get('booking_date_after')
         end_date = self.request.query_params.get('booking_date_before')
-        page = self.request.query_params.get('page', None)
+        page = self.request.query_params.get('page', 1)
 
         rc = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
 

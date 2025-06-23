@@ -103,7 +103,6 @@ from functools import wraps
 
 def measure_time(func):
     """Декоратор для замера времени выполнения функции"""
-
     @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.perf_counter()

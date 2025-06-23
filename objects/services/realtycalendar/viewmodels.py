@@ -118,9 +118,9 @@ class RealtyCalendar:
         raw_data = response.json().get("apartments")
         for raw_object in raw_data:
             try:
-                serialized_object = models.Apartment(**raw_object)
-                list_object.append(serialized_object)
-            except Exception:
-                pass
-
+                if raw_object.get('availability') == 'available': # Возвращает только доступные объекты, недоступные отсекаются
+                    serialized_object = models.Apartment(**raw_object)
+                    list_object.append(serialized_object)
+            except Exception as e:
+                logging.exception(e)
         return list_object
