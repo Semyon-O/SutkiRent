@@ -3,10 +3,9 @@ __author__ = 'EdvardKenua'
 
 from . import models
 from . import viewmodels
-from . import views
 
 __all__ = [
-    "models", "views", "viewmodels"
+    "models", "viewmodels"
 ]
 
 

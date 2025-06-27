@@ -1,8 +1,11 @@
-from django.core.exceptions import ObjectDoesNotExist
+import datetime
+import logging
 import typing
+from pprint import pprint
 
+from core.settings import RC
 from objects.models import *
-
+from objects.services import realtycalendar
 
 
 def create_or_update_object(data: [dict]):
@@ -86,7 +89,6 @@ def create_or_update_object(data: [dict]):
 
         if data.get('url_medias'):
             for photo in data['url_medias']:
-                print(photo.url, obj)
                 UrlObjectMedia(
                     url=photo.url,
                     object=obj
@@ -97,29 +99,57 @@ def create_or_update_object(data: [dict]):
     except Exception as e:
         raise Exception(f"Error creating/updating object: {str(e)}")
 
+def import_objects_from_rc():
 
+    rc_objects: list[realtycalendar.models.Apartment] = RC.get_all_objects()
 
-import time
-import logging
-from functools import wraps
+    for rc_object in rc_objects:
+        data = {
+            'id': rc_object.id,
+            'short_name': rc_object.title,
+            'cost': rc_object.price.common.without_discount,
+            'city': rc_object.city.title,
+            'amount_rooms': rc_object.rooms,
+            'address': rc_object.address,
+            'description': rc_object.desc,
+            'capacity': rc_object.capacity,
+            'space': rc_object.area,
+            'floor': rc_object.floor,
+            'sleeps': rc_object.sleeps,
+            'url_medias': rc_object.photos,
+            'region': {
+                'id': rc_object.city.id,
+                'name': rc_object.city.title
+            },
+            'latitude': rc_object.coordinates.lat,
+            'longitude': rc_object.coordinates.lon
+        }
+        try:
+            create_or_update_object(data)
+            logging.info('[INFO] Object<id={0} short_name={1}> imported successful '.format(rc_object.id, rc_object.title))
+        except Exception as e:
+            logging.error('[ERROR] Object<id={0} short_name={1}> imported error '.format(rc_object.id, rc_object.title))
+            logging.exception(e)
 
-
-def measure_time(func):
-    """Декоратор для замера времени выполнения функции"""
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        start_time = time.perf_counter()
-
-        result = func(*args, **kwargs)
-        elapsed_time = time.perf_counter() - start_time
-
-        func_name = func.__name__
-        module_name = func.__module__
-        full_name = f"{module_name}.{func_name}" if module_name else func_name
-        logging.info(f"⏱️ Функция {full_name} выполнилась за {elapsed_time:.4f} секунд")
-        print(f"⏱️ [TIME] {full_name}(): {elapsed_time:.4f}s")  # Дублируем в консоль
-
-        return result
-
-    return wrapper
+def load_daily_price_per_object():
+    objects = Object.objects.all()
+    print(len(objects))
+    for obj in objects:
+        today = datetime.date.today()
+        cur_year = today.year
+        cur_month = today.month
+        cur_day = today.day
+        object_dates = RC.get_object_date(obj.pk,
+                                          begin_date=f"{cur_year}-{cur_month}-{cur_day}",
+                                          end_date=f"{cur_year + 1}-1-01")
+        print(f"FOR OBJECT [{obj.pk}] ({cur_year}-{cur_month}-{cur_day} - {cur_year + 1}-1-01) THIS DATES")
+        pprint(object_dates)
+        for obj_date in object_dates:
+            DailyPrice.objects.update_or_create(
+                object=obj,
+                date=obj_date.date,
+                price=obj_date.price,
+                is_available=obj_date.available,
+                min_stay_days=obj_date.min_stay,
+            )
+        print("DONE")

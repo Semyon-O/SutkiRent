@@ -8,6 +8,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 import django_filters
 
+from core.settings import RC
 from . import models, filters
 from . import serializers
 from . import models
@@ -15,7 +16,7 @@ from . import models
 from .services import realtycalendar, utils
 from .services.realtycalendar.models import Apartment
 
-RC = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
+
 
 # admin views
 def import_objects(request):
