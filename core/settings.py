@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -93,13 +96,18 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+import os
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'sutkirent'),       # Значение по умолчанию 'sutkirent'
+        'USER': os.getenv('DB_USER', 'user'),           # Значение по умолчанию 'user'
+        'PASSWORD': os.getenv('DB_PASSWORD', 'pass'),   # Значение по умолчанию 'pass'
+        'HOST': os.getenv('DB_HOST', 'localhost'),     # Значение по умолчанию 'localhost'
+        'PORT': os.getenv('DB_PORT', '5432'),          # Значение по умолчанию '5432'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
