@@ -116,7 +116,7 @@ class UrlObjectMedia(models.Model):
 class Service(models.Model):
     name = models.CharField(max_length=255, verbose_name='Идентификатор услуги')
     title_to_show = models.CharField(max_length=255, verbose_name="Услуга отб.на сайте", null=True, blank=True)
-    icon = models.FileField(verbose_name="Иконка", null=True, blank=True)
+    icon = models.FileField(verbose_name="Иконка", null=True, blank=True, upload_to='objects/services/icons')
 
     def __str__(self):
         return self.name
