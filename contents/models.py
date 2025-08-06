@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
+from ckeditor.fields import RichTextField
 
 # Модель для хранения медиафайлов
 class MediaFile(models.Model):
@@ -16,7 +16,7 @@ class MediaFile(models.Model):
 # Модель статьи
 class Article(models.Model):
     title = models.CharField(_('Заголовок'), max_length=255)
-    content = models.TextField(_('Описание'))
+    content = RichTextField(_('Описание'))
     publication_date = models.DateTimeField(_('Дата публикации'), auto_now_add=True)
     short_description = models.TextField(_('Краткое описание'), blank=True)
 

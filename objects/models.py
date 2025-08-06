@@ -1,3 +1,4 @@
+from ckeditor.fields import RichTextField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -68,12 +69,12 @@ class Object(models.Model):
     banner = models.ForeignKey(to=Banner, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Баннер')
     space = models.FloatField(null=True, db_index=True, blank=True, verbose_name='Площадь')
     address = models.CharField(max_length=255, null=True, blank=True, verbose_name="Адрес")
-    description = models.TextField(null=True, blank=True, verbose_name='Описание')
-    conditions_accommodation = models.TextField(null=True, blank=True, verbose_name='Условия заселения')
-    contacts = models.TextField(null=True, blank=True, verbose_name='Контактные данные')
-    finding_description = models.TextField(null=True, blank=True, verbose_name='Как найти')
-    helpful_info = models.TextField(null=True, blank=True, verbose_name='Полезная информация')
-    parking_info = models.TextField(null=True, blank=True, verbose_name='Информация по парковке')
+    description = RichTextField(null=True, blank=True, verbose_name='Описание')
+    conditions_accommodation = RichTextField(null=True, blank=True, verbose_name='Условия заселения')
+    contacts = RichTextField(null=True, blank=True, verbose_name='Контактные данные')
+    finding_description = RichTextField(null=True, blank=True, verbose_name='Как найти')
+    helpful_info = RichTextField(null=True, blank=True, verbose_name='Полезная информация')
+    parking_info = RichTextField(null=True, blank=True, verbose_name='Информация по парковке')
     near_metro = models.ManyToManyField(to='Metro', db_index=True, null=True, through='NearMetroObject')
 
     latitude = models.FloatField(null=True)

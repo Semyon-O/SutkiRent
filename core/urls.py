@@ -48,4 +48,5 @@ urlpatterns = [
    path('api/objects/', include(object_urls.url_patterns)),
    path('api/articles/', include(contents_urls.urlpatterns)),
    path('import/objects/data', import_objects),
+   path('ckeditor/', include('ckeditor_uploader.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
