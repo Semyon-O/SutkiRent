@@ -57,10 +57,11 @@ class Object(models.Model):
     # id
     is_showing = models.BooleanField(default=True, db_index=True, verbose_name='Опубликовать?')
     short_name = models.CharField(max_length=255, verbose_name='Короткое имя')
-    cost = models.IntegerField(db_index=True, verbose_name='Стоимость')
+    cost = models.IntegerField(db_index=True, verbose_name='Стоимость базовая')
     type = models.ForeignKey(to=TypeObject, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Тип')
     amount_rooms = models.IntegerField(verbose_name="Количество комнат", null=True, blank=True, db_index=True)
-    sleeps = models.CharField(max_length=255, verbose_name="Количество спальных мест", null=True)
+    amount_sleeps = models.IntegerField(verbose_name='Количество спальных мест (количество)', null=True, blank=True, db_index=True)
+    sleeps = models.CharField(max_length=255, verbose_name="Количество спальных мест (описание)", null=True)
     capacity = models.IntegerField(verbose_name="Количество людей", null=True)
     floor = models.IntegerField(default=1, verbose_name="Этаж", null=True, db_index=True)
     category = models.ForeignKey(to=Category, on_delete=models.SET_NULL, null=True, db_index=True, blank=True, verbose_name='Категория')
@@ -75,13 +76,17 @@ class Object(models.Model):
     finding_description = RichTextField(null=True, blank=True, verbose_name='Как найти')
     helpful_info = RichTextField(null=True, blank=True, verbose_name='Полезная информация')
     parking_info = RichTextField(null=True, blank=True, verbose_name='Информация по парковке')
-    near_metro = models.ManyToManyField(to='Metro', db_index=True, null=True, through='NearMetroObject')
+    near_metro = models.ManyToManyField(to='Metro', db_index=True, null=True, through='NearMetroObject', verbose_name=_("Метро у объекта"))
 
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
 
-    services = models.ManyToManyField('Service', through='ObjectServices')
-    inventories = models.ManyToManyField('Inventory', through='ObjectInventory')
+    view_from_window = models.ForeignKey(to='ViewFromWindow', on_delete=models.SET_NULL,db_index=True, null=True, blank=True, verbose_name=_("Вид из окна"))
+    bathroom = models.ForeignKey(to='Bathroom', on_delete=models.SET_NULL, db_index=True, null=True, blank=True, verbose_name=_("Тип ванной комнаты"))
+
+    services = models.ManyToManyField('Service', through='ObjectServices', verbose_name=_("Услуги для объекта"))
+    inventories = models.ManyToManyField('Inventory', through='ObjectInventory', verbose_name=_("Инвентарь для объекта"))
+    accessibility = models.ManyToManyField('Accessibility', through='ObjectAccessibilities', verbose_name=_("Специальный возможности объекта"))
 
     def __str__(self):
         return f"{self.short_name} ({self.pk})"
@@ -150,8 +155,8 @@ class Metro(models.Model):
 
 
 class NearMetroObject(models.Model):
-    metro = models.ForeignKey(to=Metro, on_delete=models.SET_NULL, null=True)
-    object = models.ForeignKey(to=Object, on_delete=models.SET_NULL, null=True)
+    metro = models.ForeignKey(to=Metro, on_delete=models.SET_NULL, null=True, verbose_name=_("Метро"))
+    object = models.ForeignKey(to=Object, on_delete=models.SET_NULL, null=True, verbose_name=_("Объект"))
 
 class ObjectServices(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, verbose_name="Услуга")
@@ -177,3 +182,44 @@ class ObjectInventory(models.Model):
         verbose_name_plural = "Инвентарь для объекта"
         verbose_name = "Инвентарь для объекта"
         ordering = ['object', 'inventory']
+
+class ObjectAccessibilities(models.Model):
+    object_id = models.ForeignKey(Object, on_delete=models.CASCADE, null=True)
+    accessibility_type = models.ForeignKey('Accessibility', on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        verbose_name_plural = "Специальные возможности для объектов"
+        verbose_name = "Спец. возможность для объекта"
+
+
+class ViewFromWindow(models.Model):
+    notation_view = models.CharField(max_length=255,
+                                     db_index=True,
+                                     verbose_name=_("Вид из окна"))
+
+    class Meta:
+        verbose_name_plural = "Виды из окон"
+        verbose_name = "Вид из окна"
+
+class Accessibility(models.Model):
+    accessibility_type = models.CharField(max_length=255,
+                                          db_index=True,
+                                          null=True,
+                                          verbose_name=_("Специальный возможности"))
+
+    class Meta:
+        verbose_name_plural = "Специальные возможности"
+        verbose_name = "Спец. возможность"
+
+    def __str__(self):
+        return str(self.accessibility_type)
+
+
+class Bathroom(models.Model):
+    bathroom_type = models.CharField(max_length=255,
+                                     db_index=True,
+                                     verbose_name=_("Тип ванной комнаты"))
+
+    class Meta:
+        verbose_name_plural = "Типы ванных комнат"
+        verbose_name = "Тип ванной"

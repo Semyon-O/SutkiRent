@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    networks:
+      - app-network
+    environment:
+      POSTGRES_DB: sutkirent
+      POSTGRES_USER: sutkirent
+      POSTGRES_PASSWORD: sutkirent
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgresql:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    networks:
+      - app-network
+    environment:
+      DB_NAME: sutkirent
+      DB_USER: sutkirent
+      DB_PASSWORD: sutkirent
+      DB_HOST: db
+      DB_PORT: 5432
+
+      CSRF_TRUSTED_ORIGINS: http://localhost,http://127.0.0.1
+      CSRF_COOKIE_DOMAIN: localhost
+      ALLOWED_HOSTS: localhost
+
+    depends_on:
+      - db
+    volumes:
+      - ./media:/app/media
+    ports:
+      - "8000:8000"
+    command: sh -c "sleep 5 && python manage.py migrate \
+                    && python manage.py runserver 0.0.0.0:8000"
+
+#  frontend:
+#    build: ./frontend
+#    depends_on:
+#      - backend
+#    ports:
+#      - "3000"
+#    networks:
+#      - app-network
+#
+#  nginx:
+#    image: nginx:alpine
+#    ports:
+#      - "80:80"
+#    volumes:
+#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+#    depends_on:
+#      - backend
+#      - frontend
+#    networks:
+#      - app-network
+
+networks:
+  app-network:
+    driver: bridge

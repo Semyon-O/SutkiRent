@@ -1,12 +1,17 @@
+import json
+import logging
 import os
 from pathlib import Path
-
-from dotenv import load_dotenv
-load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+def str_to_list(value, default=None):
+    if not value:
+        return default or []
+    if isinstance(value, list):
+        return value
+    return [item.strip() for item in value.split(',') if item.strip()]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -17,12 +22,17 @@ SECRET_KEY = 'django-insecure-tsgk8-fz*m%l^(%z)_&)63e54=gnj24@1wio^f24#k#stvbzl+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
 CORS_ALLOW_ALL_ORIGINS = True # If this is used then `CORS_ALLOWED_ORIGINS` will not have any effect
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+CSRF_COOKIE_DOMAIN = os.environ.get('CSRF_COOKIE_DOMAIN')
+SESSION_COOKIE_DOMAIN = os.environ.get('CSRF_COOKIE_DOMAIN')
+
+ALLOWED_HOSTS = str_to_list(os.environ.get('ALLOWED_HOSTS'))
+CSRF_TRUSTED_ORIGINS = str_to_list(os.environ.get('CSRF_TRUSTED_ORIGINS'))
+
 
 CORS_ALLOW_HEADERS = (
     "accept",
@@ -103,11 +113,11 @@ import os
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'sutkirent'),       # Значение по умолчанию 'sutkirent'
-        'USER': os.getenv('DB_USER', 'user'),           # Значение по умолчанию 'user'
-        'PASSWORD': os.getenv('DB_PASSWORD', 'pass'),   # Значение по умолчанию 'pass'
-        'HOST': os.getenv('DB_HOST', 'localhost'),     # Значение по умолчанию 'localhost'
-        'PORT': os.getenv('DB_PORT', '5432'),          # Значение по умолчанию '5432'
+        'NAME': os.environ.get('DB_NAME', 'postgres'),       # Значение по умолчанию 'sutkirent'
+        'USER': os.environ.get('DB_USER', 'postgres'),           # Значение по умолчанию 'user'
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'mysecretpassword'),   # Значение по умолчанию 'pass'
+        'HOST': os.environ.get('DB_HOST', 'localhost'),     # Значение по умолчанию 'localhost'
+        'PORT': os.environ.get('DB_PORT', '5432'),          # Значение по умолчанию '5432'
     }
 }
 
@@ -140,7 +150,6 @@ CKEDITOR_JQUERY_URL = 'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery
 CKEDITOR_CONFIGS = {
     'default': {
         'skin': 'moono',
-        # 'skin': 'office2013',
         'toolbar_Basic': [
             ['Source', '-', 'Bold', 'Italic']
         ],
@@ -176,17 +185,9 @@ CKEDITOR_CONFIGS = {
             ]},
         ],
         'toolbar': 'YourCustomToolbarConfig',  # put selected toolbar config here
-        # 'toolbarGroups': [{ 'name': 'document', 'groups': [ 'mode', 'document', 'doctools' ] }],
-        # 'height': 291,
-        # 'width': '100%',
-        # 'filebrowserWindowHeight': 725,
-        # 'filebrowserWindowWidth': 940,
-        # 'toolbarCanCollapse': True,
-        # 'mathJaxLib': '//cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
         'tabSpaces': 4,
         'extraPlugins': ','.join([
             'uploadimage',  # the upload image feature
-            # your extra plugins here
             'div',
             'autolink',
             'autoembed',

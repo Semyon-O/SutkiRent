@@ -49,6 +49,11 @@ def import_objects(request):
             logging.exception(e)
     return HttpResponse(status=200)
 
+def index(request):
+    logging.log(logging.INFO, request.META)
+    headers = str(request.META)
+    return HttpResponse(headers)
+
 # GET /api/objects/?cost_min=&cost_max=&type=&amount_rooms_min=&amount_rooms_max=&floor_min=&floor_max=&region=&city=&space_min=&space_max=&booking_date_after=2025-04-13&booking_date_before=2025-04-17
 # apis
 class ListObjects(ListAPIView):
@@ -61,17 +66,29 @@ class ListObjects(ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
+    @measure_time
     def get_queryset(self):
         """Основной метод получения queryset с поэтапной фильтрацией"""
+
+        begin_date = self.request.query_params.get('booking_date_after')
+        end_date = self.request.query_params.get('booking_date_before')
+        page = self.request.query_params.get('page', '1')
+        if not begin_date and not end_date:
+            all_objects = super().get_queryset()
+            if page == '1': # Вывод всех объектов только по первой странице, остальные страницы отсекаются.
+                return all_objects
+            else:
+                return all_objects.none()
+
         queryset = super().get_queryset()
         # Фильтрация по данным из RealtyCalendar
         rc_apartments = self._get_filtered_rc_apartments()
 
         if rc_apartments:
             queryset = self._apply_rc_filters(queryset, rc_apartments)
+        else:
+            return  queryset.none()
 
-        # Стандартная фильтрация Django
         queryset = self.filter_queryset(queryset)
 
         # Добавляем данные о ценах
@@ -85,6 +102,8 @@ class ListObjects(ListAPIView):
         """Фильтрация данных из RealtyCalendar по датам и цене"""
         rc_apartments = self._filter_by_dates()
 
+        if rc_apartments == []:
+            return []
 
         if rc_apartments and ('cost_min' in self.request.query_params and 'cost_max' in self.request.query_params):
             rc_apartments = self._filter_by_price(rc_apartments)
@@ -92,19 +111,23 @@ class ListObjects(ListAPIView):
         return rc_apartments
 
     def _filter_by_dates(self) -> List[Apartment]:
-        # TODO: Решить проблему со скоростью загрузки информации. Пагинацию добавить или асинхронку
         """Фильтрация объектов по датам через API RealtyCalendar"""
+
+
         begin_date = self.request.query_params.get('booking_date_after')
         end_date = self.request.query_params.get('booking_date_before')
+        page = self.request.query_params.get('page', '1')
+
+        rc = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
 
         if not (begin_date or end_date):
             return []
 
         try:
-            rc = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
             return rc.get_objects_by_filters(
                 begin_date=begin_date,
-                end_date=end_date
+                end_date=end_date,
+                page=page
             )
 
         except Exception as e:
@@ -127,14 +150,12 @@ class ListObjects(ListAPIView):
 
         return apartments
 
-
     def _apply_rc_filters(self, queryset: QuerySet, rc_apartments: List[Apartment]) -> QuerySet:
         """Применение фильтров по ID из RealtyCalendar"""
         available_ids = [apt.id for apt in rc_apartments]
         return queryset.filter(id__in=available_ids)
 
-
-    def _enrich_with_prices(self, queryset: QuerySet, rc_apartments: List[Apartment]):
+    def _enrich_with_prices(self, queryset: QuerySet, rc_apartments: List[Apartment]) -> QuerySet:
         """Добавление актуальных цен к объектам"""
         price_map = {apt.id: apt.price.common.without_discount for apt in rc_apartments}
         for obj in queryset:
@@ -224,3 +245,16 @@ class ObjectInventoryListAPIView(ListAPIView):
 class ObjectInventoryRetrieveAPIView(RetrieveAPIView):
     queryset = models.ObjectInventory.objects.all()
     serializer_class = serializers.ObjectInventorySerializer
+
+class BathroomTypesList(ListAPIView):
+    queryset = models.Bathroom.objects.all()
+    serializer_class = serializers.BathroomTypesSerializer
+
+
+class ViewFromWindowList(ListAPIView):
+    queryset = models.ViewFromWindow.objects.all()
+    serializer_class = serializers.ViewFromWindowSerializer
+
+class AccessibilityTypes(ListAPIView):
+    queryset = models.Accessibility.objects.all()
+    serializer_class = serializers.AccessibilitySerializer

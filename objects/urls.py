@@ -34,4 +34,10 @@ url_patterns = [
 
     path('object-inventory/', views.ObjectInventoryListAPIView.as_view()),
     path('object-inventory/<int:pk>', views.ObjectInventoryListAPIView.as_view()),
+
+    path('bathroom-types/', views.BathroomTypesList.as_view()),
+
+    path('views-from-window-types/', views.ViewFromWindowList.as_view()),
+
+    path('accessibility-types/', views.AccessibilityTypes.as_view()),
 ]
