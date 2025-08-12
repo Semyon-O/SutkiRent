@@ -18,12 +18,12 @@ class ObjectFilter(django_filters.FilterSet):
         queryset=Metro.objects.all()
     )
 
-    view_from_window = django_filters.ModelMultipleChoiceFilter(
+    view_from_window = django_filters.ModelChoiceFilter(
         field_name='view_from_window',
         queryset=ViewFromWindow.objects.all()
     )
 
-    bathroom = django_filters.ModelMultipleChoiceFilter(
+    bathroom = django_filters.ModelChoiceFilter(
         field_name='bathroom',
         queryset=Bathroom.objects.all()
     )
