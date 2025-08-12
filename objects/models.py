@@ -99,7 +99,7 @@ class Object(models.Model):
 
 # Модель для хранения медиафайлов
 class ObjectsMediaFile(models.Model):
-    file = models.FileField(upload_to='objects/', verbose_name=_('Файл'), null=True, blank=True)
+    file = models.FileField(upload_to='objects/images', verbose_name=_('Файл'), null=True, blank=True)
     object = models.ForeignKey(
         Object, on_delete=models.CASCADE, related_name='file_media'
     )
@@ -201,6 +201,9 @@ class ViewFromWindow(models.Model):
         verbose_name_plural = "Виды из окон"
         verbose_name = "Вид из окна"
 
+    def __str__(self):
+        return str(self.notation_view)
+
 class Accessibility(models.Model):
     accessibility_type = models.CharField(max_length=255,
                                           db_index=True,
@@ -223,3 +226,6 @@ class Bathroom(models.Model):
     class Meta:
         verbose_name_plural = "Типы ванных комнат"
         verbose_name = "Тип ванной"
+
+    def __str__(self):
+        return str(self.bathroom_type)

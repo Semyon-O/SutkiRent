@@ -66,17 +66,18 @@ class ListObjects(ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    @measure_time
+
+
     def get_queryset(self):
         """Основной метод получения queryset с поэтапной фильтрацией"""
-
         begin_date = self.request.query_params.get('booking_date_after')
         end_date = self.request.query_params.get('booking_date_before')
         page = self.request.query_params.get('page', '1')
         if not begin_date and not end_date:
             all_objects = super().get_queryset()
             if page == '1': # Вывод всех объектов только по первой странице, остальные страницы отсекаются.
-                return all_objects
+                queryset = self.filter_queryset(all_objects)
+                return queryset
             else:
                 return all_objects.none()
 
@@ -138,6 +139,17 @@ class ListObjects(ListAPIView):
         """Фильтрация объектов по стоимости"""
         price_min = self.request.query_params.get('cost_min')
         price_max = self.request.query_params.get('cost_max')
+
+        try:
+            price_min = float(price_min) if price_min is not None else 0
+        except ValueError:
+            price_min = 0
+
+        try:
+            price_max = float(price_max) if price_max is not None else float('inf')
+        except ValueError:
+            price_max = float('inf')
+
         try:
             if price_min or price_max:
                 return Apartment.filter_by_price(
@@ -249,7 +261,6 @@ class ObjectInventoryRetrieveAPIView(RetrieveAPIView):
 class BathroomTypesList(ListAPIView):
     queryset = models.Bathroom.objects.all()
     serializer_class = serializers.BathroomTypesSerializer
-
 
 class ViewFromWindowList(ListAPIView):
     queryset = models.ViewFromWindow.objects.all()
