@@ -1,0 +1,12 @@
+{% extends 'admin/change_list.html' %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        {% if request.user.is_superuser %}
+            <a href="{% url 'admin:import_objects_from_rc' %}" class="btn btn-success float-right">  <!-- или другой класс -->
+                Импортировать новые объекты из RC 📥
+            </a>
+        {% endif %}
+    </li>
+{% endblock %}

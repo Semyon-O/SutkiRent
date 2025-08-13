@@ -8,46 +8,12 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 import django_filters
 
-from . import models, filters
+from . import filters
 from . import serializers
 from . import models
 
-from .services import realtycalendar, utils
+from .services import realtycalendar
 from .services.realtycalendar.models import Apartment
-from .services.utils import measure_time
-
-
-# admin views
-def import_objects(request):
-    RC = realtycalendar.viewmodels.RealtyCalendar("https://realtycalendar.ru/v2/widget/AAAwUw")
-    rc_objects: list[realtycalendar.models.Apartment] = RC.get_all_objects()
-
-    for rc_object in rc_objects:
-        data = {
-            'id': rc_object.id,
-            'short_name': rc_object.title,
-            'cost': rc_object.price.common.without_discount,
-            'city': rc_object.city.title,
-            'amount_rooms': rc_object.rooms,
-            'address': rc_object.address,
-            'description': rc_object.desc,
-            'capacity': rc_object.capacity,
-            'space': rc_object.area,
-            'floor': rc_object.floor,
-            'sleeps': rc_object.sleeps,
-            'url_medias': rc_object.photos,
-            'region': {
-                'id': rc_object.city.id,
-                'name': rc_object.city.title
-            },
-            'latitude': rc_object.coordinates.lat,
-            'longitude': rc_object.coordinates.lon
-        }
-        try:
-            utils.create_or_update_object(data)
-        except Exception as e:
-            logging.exception(e)
-    return HttpResponse(status=200)
 
 def index(request):
     logging.log(logging.INFO, request.META)

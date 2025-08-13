@@ -89,7 +89,9 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -113,11 +115,11 @@ import os
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'postgres'),       # Значение по умолчанию 'sutkirent'
-        'USER': os.environ.get('DB_USER', 'postgres'),           # Значение по умолчанию 'user'
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'mysecretpassword'),   # Значение по умолчанию 'pass'
-        'HOST': os.environ.get('DB_HOST', 'localhost'),     # Значение по умолчанию 'localhost'
-        'PORT': os.environ.get('DB_PORT', '5432'),          # Значение по умолчанию '5432'
+        'NAME': os.environ.get('DB_NAME'),       # Значение по умолчанию 'sutkirent'
+        'USER': os.environ.get('DB_USER'),           # Значение по умолчанию 'user'
+        'PASSWORD': os.environ.get('DB_PASSWORD'),   # Значение по умолчанию 'pass'
+        'HOST': os.environ.get('DB_HOST'),     # Значение по умолчанию 'localhost'
+        'PORT': os.environ.get('DB_PORT'),          # Значение по умолчанию '5432'
     }
 }
 
