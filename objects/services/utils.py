@@ -43,8 +43,8 @@ def create_or_update_object(data: [dict]):
 
 
         # Создаем/обновляем основной объект
-        obj, created = Object.objects.update_or_create(
-            id=data.get('id'),  # если id нет - создаст новый объект
+        obj, created = Object.objects.get_or_create(
+            id=data.get('id'),
             defaults={
                 'id': data.get('id'),
                 'is_showing': data.get('is_showing', True),
@@ -93,7 +93,7 @@ def create_or_update_object(data: [dict]):
         return obj
 
     except Exception as e:
-        raise Exception(f"Error creating/updating object: {str(e)}")
+        raise ValueError(f"Error creating/updating object: {str(e)}")
 
 
 import time

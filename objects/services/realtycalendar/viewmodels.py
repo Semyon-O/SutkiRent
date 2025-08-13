@@ -32,7 +32,7 @@ class RealtyCalendar:
             )
 
             if response.status_code == 404:
-                return ConnectionError("Not founded resources")
+                return ConnectionRefusedError("Not founded resources")
 
             if response.status_code in (500, 501, 505):
                 return ConnectionError("Error with realtycalendar. Check access")
