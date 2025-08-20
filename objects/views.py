@@ -7,10 +7,13 @@ from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 import django_filters
+from rest_framework.views import APIView
 
 from . import filters
 from . import serializers
 from . import models
+from .models import Object
+from .serializers import ObjectSerializer, ShortObjectSerializer
 
 from .services import realtycalendar
 from .services.realtycalendar.models import Apartment
@@ -22,6 +25,52 @@ def index(request):
 
 # GET /api/objects/?cost_min=&cost_max=&type=&amount_rooms_min=&amount_rooms_max=&floor_min=&floor_max=&region=&city=&space_min=&space_max=&booking_date_after=2025-04-13&booking_date_before=2025-04-17
 # apis
+
+class GetObjectsByIdsAPIView(APIView):
+    """
+    Принимает POST-запрос с телом: {"ids": [1, 2, 3]}
+    Возвращает список объектов с указанными ID.
+    """
+    def post(self, request, *args, **kwargs):
+        ids = request.data.get('ids', [])
+
+        # Проверка, что ids — это список
+        if not isinstance(ids, list):
+            return Response(
+                {"error": "Поле 'ids' должно быть списком."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Проверка, что все элементы — целые числа
+        if not all(isinstance(i, int) for i in ids):
+            return Response(
+                {"error": "Все ID должны быть целыми числами."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Получаем объекты по ID, фильтруем только опубликованные (is_showing=True)
+        objects = Object.objects.filter(id__in=ids, is_showing=True).prefetch_related(
+            'near_metro',
+            'services',
+            'inventories',
+            'accessibility',
+            'type',
+            'category',
+            'region',
+        )
+
+        # Если не найдено ни одного объекта
+        if not objects.exists():
+            return Response(
+                {"error": "Объекты с такими ID не найдены или не опубликованы."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Сериализуем и возвращаем данные
+        serializer = ShortObjectSerializer(objects, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class ListObjects(ListAPIView):
     serializer_class = serializers.ShortObjectSerializer
     queryset = models.Object.objects.all()
@@ -151,21 +200,17 @@ class RetrieveObject(RetrieveAPIView):
         serializer = self.get_serializer(obj)
         return Response(serializer.data)
 
-
 class TypeObjectListAPIView(ListAPIView):
     queryset = models.TypeObject.objects.all()
     serializer_class = serializers.TypeObjectSerializer
-
 
 class CategoryListAPIView(ListAPIView):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
 
-
 class CategoryRetrieveAPIView(RetrieveAPIView):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
-
 
 class RegionListAPIView(ListAPIView):
     queryset = models.Region.objects.all()
@@ -174,7 +219,6 @@ class RegionListAPIView(ListAPIView):
 class RegionRetrieveAPIView(RetrieveAPIView):
     queryset = models.Region.objects.all()
     serializer_class = serializers.RegionSerializer
-
 
 class BannerListAPIView(ListAPIView):
     queryset = models.Banner.objects.all()

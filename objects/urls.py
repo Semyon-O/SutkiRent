@@ -7,6 +7,7 @@ url_patterns = [
     # admin views
     # APIs
     path('', views.ListObjects.as_view()),
+    path('list/by/ids', views.GetObjectsByIdsAPIView.as_view()),
     path('<int:pk>', views.RetrieveObject.as_view()),
     path('type/', views.TypeObjectListAPIView.as_view()),
     path('type/<int:pk>', views.TypeObjectListAPIView.as_view()),
